@@ -1,0 +1,22 @@
+<launch>
+    <arg name="model_name" default="skeleton"/>
+    <arg name="reference_frame" default="world"/>
+
+    <!-- UDP communication arguments -->
+    <arg name="udp_port" default="8001"/>
+
+    <!-- RViz arguments -->
+    <arg name="launch_rviz" default="true"/>
+    <arg name="rviz_config_file" default="$(find-pkg-share xsens_mvn_ros)/rviz/xsens_visualization.rviz"/>
+
+    <!-- Launch the node -->
+    <node pkg="xsens_mvn_ros" executable="xsens_client" name="xsens" output="screen">
+        <param name="model_name" value="$(var model_name)"/>
+        <param name="reference_frame" value="$(var reference_frame)"/>
+        <param name="udp_port" value="$(var udp_port)"/>
+    </node>
+  
+    <!-- Launch RViz -->
+    <node if="$(var launch_rviz)" name="xsens_rviz" pkg="rviz" executable="rviz" output="screen" args="-d $(var rviz_config_file)"/>
+
+</launch>

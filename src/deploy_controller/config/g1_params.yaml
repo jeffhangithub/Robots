@@ -1,0 +1,25 @@
+# 宇树G1机器人参数配置
+g1_controller:
+  ros__parameters:
+    # 网络配置
+    robot_ip: "192.168.123.164"
+    robot_port: 5555
+    
+    # 控制参数
+    control_rate: 50.0      # 控制频率 (Hz)
+    publish_rate: 50.0      # 发布频率 (Hz)
+    cmd_timeout: 1.0        # 命令超时时间 (秒)
+    
+    # 关节限制
+    joint_limits:
+      hip_joint: [-0.5, 0.5]      # 髋关节限制 (弧度)
+      thigh_joint: [0.3, 1.2]     # 大腿关节限制 (弧度)
+      calf_joint: [-1.8, -0.5]     # 小腿关节限制 (弧度)
+    
+    # 默认关节位置 (站立姿势)
+    default_joint_positions: [0.0, 0.7, -1.4, 0.0, 0.7, -1.4, 0.0, 0.7, -1.4, 0.0, 0.7, -1.4]
+    
+    # 安全参数
+    max_linear_velocity: 1.0      # 最大线速度 (m/s)
+    max_angular_velocity: 2.0     # 最大角速度 (rad/s)
+    emergency_stop_threshold: 0.5 # 急停阈值
