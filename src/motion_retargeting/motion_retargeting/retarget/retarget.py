@@ -1,29 +1,3 @@
-"""
-算法分析 (Algorithm Analysis):
-
-本文件实现了基于BVH数据的运动重定向核心类 `BVHRetarget`，其主要算法逻辑如下：
-
-1. **骨骼结构建模 (Skeleton Modeling)**:
-   - 使用 `Joint` 类构建分层骨骼树结构，维护关节间的父子关系、偏移量(Offset)和自由度(DOF)。
-   - 支持解析BVH标准格式的欧拉角旋转顺序 (YXZ)。
-
-2. **正向运动学 (Forward Kinematics)**:
-   - `set_motion` 方法根据输入的运动帧数据，递归计算每个关节的全局位置和旋转矩阵。
-   - 变换公式: Global_transform = Parent_transform * Local_transform。
-
-3. **坐标系变换 (Coordinate Transformation)**:
-   - 内置了从动画软件坐标系（通常Y-up）到机器人仿真坐标系（通常Z-up）的转换矩阵 `R_conversion`。
-   - 位置映射逻辑: (x, y, z)_BVH -> (z, x, y)_Robot。
-
-4. **运动数据处理 (Motion Processing)**:
-   - 支持帧率重采样 (Rescaling)，根据目标FPS对原始BVH数据进行跳帧处理。
-   - 提供 `get_dataset_position` 和 `get_dataset_rotation` 接口，为下游的逆向运动学(IK)求解器提供重定向的目标位姿（Target Pose）。
-
-5. **可视化调试 (Visualization)**:
-   - 集成 Matplotlib 3D 绘图功能，支持按身体部位着色绘制骨架，用于验证运动数据的解析正确性。
-
-该类通常作为重定向流水线中的"Teacher"端，负责提供标准的人体动作参考数据。
-"""
 import numpy as np
 import sys, os, re
 import re

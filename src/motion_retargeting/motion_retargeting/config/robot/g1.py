@@ -1,25 +1,26 @@
 from motion_retargeting.config.bvh_retarget_config import BVHRetargetConfig
 
-from robot_descriptions.g1_mj_description import MJCF_PATH
-from motion_retargeting.utils.mujoco.model_editor import MJCFModelEditor
 import numpy as np
 import os
-from ament_index_python import get_package_share_directory
 
+# 使用本地路径而非 robot_descriptions（避免网络依赖）
+MJCF_PATH = os.path.join(os.path.dirname(__file__), "../../../robots/g1/urdf/g1.xml")
 
-# MJCF_PATH = os.path.join(os.path.dirname(__file__), "../../../robots/g1/urdf/g1.xml")
-# MJCF_PATH = os.path.join(get_package_share_directory('motion_retargeting'), '../../../../src/motion_retargeting/robots/g1/urdf/g1.xml')
-# Add a new body to the torso link to serve as the center of the torso
-editor = MJCFModelEditor.from_path(MJCF_PATH)
-editor.add_body("torso_center", "torso_link", np.array([0, 0, 0.25]), np.array([1, 0, 0, 0]))
-editor.compile()
+# 尝试用 Mujoco.MjSpec 生成带 torso_center 的编辑版；若不支持（如无 MjSpec），回退到原始 MJCF。
+try:
+    from motion_retargeting.utils.mujoco.model_editor import MJCFModelEditor
 
-save_path = os.path.join(os.path.dirname(__file__), "models")
-MODEL_PATH = os.path.join(save_path, f"{os.path.basename(MJCF_PATH).split('.')[0]}_edited.xml")
+    editor = MJCFModelEditor.from_path(MJCF_PATH)
+    editor.add_body("torso_center", "torso_link", np.array([0, 0, 0.25]), np.array([1, 0, 0, 0]))
+    editor.compile()
 
-if not os.path.exists(save_path):
-    os.makedirs(save_path)
-editor.save(MODEL_PATH)
+    save_path = os.path.join(os.path.dirname(__file__), "models")
+    MODEL_PATH = os.path.join(save_path, f"{os.path.basename(MJCF_PATH).split('.')[0]}_edited.xml")
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    editor.save(MODEL_PATH)
+except Exception:
+    MODEL_PATH = MJCF_PATH
 
 class G1_BVH_CONFIG(BVHRetargetConfig):
     template_scale = 0.8013491034507751
@@ -27,7 +28,8 @@ class G1_BVH_CONFIG(BVHRetargetConfig):
     joint_limit_scale: float = 0.9
     output_fps = 60
     body_to_model_map = {
-        "root": "torso_center",
+        # 若无编辑版 torso_center，则使用 pelvis 作为根
+        "root": "pelvis",
         "left_hip": "left_hip_roll_link",
         "right_hip": "right_hip_roll_link",
         "left_knee": "left_knee_link",

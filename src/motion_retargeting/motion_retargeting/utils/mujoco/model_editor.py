@@ -1,3 +1,5 @@
+#32行有改动。2025-12-24 解决Mujoco兼容问题
+
 import mujoco
 import numpy as np
 import os
@@ -28,7 +30,11 @@ class MJCFModelEditor:
         return MJCFModelEditor(mujoco.MjSpec())
 
     def add_body(self, body_name: str, parent_name: str, position: np.ndarray, quaternion: np.ndarray):
-        parent_body = self.spec.find_body(parent_name)
+#       parent_body = self.spec.find_body(parent_name) # mujoco 3.x don't have find_body
+        parent_body = self.spec.body(parent_name)   # MuJoCo 3.x
+        if parent_body is None:
+            raise ValueError(f"Body not found in MjSpec: {parent_name}")
+
         child_body = parent_body.add_body()
         child_body.name = body_name
         child_body.pos = position

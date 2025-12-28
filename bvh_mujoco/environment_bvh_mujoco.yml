@@ -1,0 +1,10 @@
+name: bvh_mujoco
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy=1.26.4
+  - pip:
+      - mujoco==2.3.7
+      - fairmotion

@@ -1,0 +1,38 @@
+name: robots_env
+channels:
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.10
+  - pip
+
+  # 强制 NumPy 1.x，避免 NumPy2 ABI 雷
+  - numpy=1.26.4
+  - osqp=0.6.7.post3
+  - qdldl-python
+  - scipy
+  - matplotlib
+  - pyyaml
+
+  # IK/QP
+  - qpsolvers
+  - osqp
+  - quadprog
+
+  # 让 conda-forge 选一套与 py3.10 匹配的 pinocchio/eigenpy
+  - pinocchio
+  - eigenpy
+  - pink
+
+  # PyTorch CUDA 12.4
+  - pytorch::pytorch=2.5.1
+  - pytorch::torchvision
+  - pytorch::torchaudio
+  - pytorch::pytorch-cuda=12.4
+
+  - pip:
+      - mujoco==2.3.7
+      # 只有当你项目里确实用到 SortImports 这类老 API 才需要
+      - isort==4.3.21
+      - -e ./src/motion_retargeting

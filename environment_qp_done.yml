@@ -1,0 +1,46 @@
+name: robots_env
+channels:
+  - conda-forge
+  - pytorch
+  - nvidia
+
+dependencies:
+  - python=3.10
+  - pip
+
+  # --- ABI 关键锁定：避免 NumPy 2.x ---
+  - numpy=1.26.4
+  - scipy
+  - matplotlib
+  - pyyaml
+
+  # --- 四元数模块（提供 import quaternion）---
+  - numpy-quaternion
+
+  # --- 机器人/IK/QP 链路（pink + qpsolvers + 可用 solver）---
+  - pink=3.5.0
+  - qpsolvers=4.8.2
+  - daqp
+  - proxsuite
+  - quadprog
+  - scs
+
+  # --- pinocchio/eigenpy：让 conda-forge 为 py310 解一致组合（不要死 pin 老版本）---
+  - pinocchio
+  - eigenpy
+
+  # --- PyTorch (CUDA 12.4) ---
+  - pytorch::pytorch=2.5.1
+  - pytorch::torchvision
+  - pytorch::torchaudio
+  - pytorch::pytorch-cuda=12.4
+
+  # --- 只通过 pip 固定 MuJoCo 2.3.7（规避 3.x find_body 兼容性）---
+  - pip:
+      - mujoco==2.3.7
+
+      # 如果你确定项目运行时确实需要旧 isort API（多数情况下不需要），再打开这一行：
+      # - isort==4.3.21
+
+      # 项目本体：确保从仓库根目录执行 conda env create
+      - -e ./src/motion_retargeting

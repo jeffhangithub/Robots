@@ -103,8 +103,8 @@ class RobotMotionViewer:
         self.viewer = mjv.launch_passive(
             model=self.model,
             data=self.data,
-            show_left_ui=False,
-            show_right_ui=False,
+#           show_left_ui=False, #Mujoco 2 don't have this arg yet
+#           show_right_ui=False, #Mujoco 2 don't have this arg yet
         )
 
         self.viewer.opt.flags[mj.mjtVisFlag.mjVIS_TRANSPARENT] = transparent_robot
@@ -151,7 +151,8 @@ class RobotMotionViewer:
         # 减去第第一帧的位置
         self.data.qpos[0] = root_pos[0] +4.809377899566405
         self.data.qpos[1] = root_pos[1] - 3.105833551937692
-        self.data.qpos[2] = root_pos[2] -1.0257531046377046
+        self.data.qpos[2] = root_pos[2] + 0.05 #调整地面高度，202512241806
+        #self.data.qpos[2] = root_pos[2] -1.0257531046377046
         self.data.qpos[3:7] = root_rot  # quat need to be scalar first! for mujoco
         self.data.qpos[7:] = dof_pos
 
@@ -306,11 +307,14 @@ if __name__ == "__main__":
             # You may need to adjust this based on your specific robot
             dof_pos = motion_dof_pos[frame_idx].tolist()
             
-            # Check if DOF count matches
-            if len(dof_pos) != env.model.nv - 6:  # subtract root pos+rot
-                print(f"Warning: DOF count mismatch. Model: {env.model.nv-6}, Motion: {len(dof_pos)}")
-                # Try to use first n DOFs
-                dof_pos = dof_pos[:env.model.nv-6]
+            # Check if DOF count matches; pad or truncate to fit model
+            expected = env.model.nv - 6  # subtract root pos+rot
+            if len(dof_pos) != expected:
+                print(f"Warning: DOF count mismatch. Model: {expected}, Motion: {len(dof_pos)}")
+                if len(dof_pos) > expected:
+                    dof_pos = dof_pos[:expected]
+                else:
+                    dof_pos = dof_pos + [0.0] * (expected - len(dof_pos))
             
             env.step(
                 root_pos,

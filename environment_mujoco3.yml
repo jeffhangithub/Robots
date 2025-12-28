@@ -1,0 +1,32 @@
+name: robots_env_mj3
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+
+  - numpy=1.26.4
+  - scipy
+  - matplotlib
+  - pyyaml
+  - isort<5
+
+  - qpsolvers
+  - osqp
+  - quadprog
+
+  # 这里可以不锁 pinocchio/eigenpy，让 conda-forge 自己解出 3.x 的一致组合
+  - pinocchio
+  - eigenpy
+  - pink
+
+  - mujoco  # conda-forge 通常会给到 3.3.7
+  - pytorch=2.5.1
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.4
+
+  - pip:
+      - -e ./src/motion_retargeting
