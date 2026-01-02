@@ -1,0 +1,59 @@
+<mujoco model="OGHR_wholeBody">
+  <compiler angle="radian"/>
+
+  <worldbody>
+    <geom size="0.174519 0.250794" pos="-0.0139522 -0.00175001 0.195282" type="cylinder" rgba="0.752941 0.752941 0.752941 1"/>
+    <body name="Link-hip-r-roll" pos="-0.08575 -0.1215 -0.167">
+      <inertial pos="0.0763902 3.03512e-05 0.0143062" quat="0.00119945 0.714396 -0.00126727 0.69974" mass="1.80239" diaginertia="0.00272605 0.00169536 0.00125115"/>
+      <joint name="Joint-hip-r-roll" pos="0 0 0" axis="1 0 0" range="-0.17453 0.43633" actuatorfrcrange="-320 320"/>
+      <body name="Link-hip-r-yaw" pos="0.084 0 -0.0085">
+        <inertial pos="1.96935e-08 0.00792742 -0.0418047" quat="0.946912 0.321492 0 0" mass="0.454709" diaginertia="0.000973165 0.000904719 0.000402039"/>
+        <joint name="Joint-hip-r-yaw" pos="0 0 0" axis="0 0 1" range="-0.69813 0.69813" actuatorfrcrange="-160 160"/>
+        <body name="Link-hip-r-pitch" pos="0 0.042 -0.0915">
+          <inertial pos="0.00082061 -0.0604024 -0.109517" quat="0.708092 -0.0083477 -0.000601604 0.706071" mass="7.95221" diaginertia="0.0594962 0.0503949 0.0130436"/>
+          <joint name="Joint-hip-r-pitch" pos="0 0 0" axis="0 -1 0" range="-0.7854 1.8326" actuatorfrcrange="-396 396"/>
+          <body name="Link-knee-r-pitch" pos="0 -0.03675 -0.4">
+            <inertial pos="0.000639236 9.62808e-05 -0.15349" quat="0.70769 -0.0011083 0.00395068 0.706511" mass="3.11551" diaginertia="0.0198799 0.0186295 0.00190828"/>
+            <joint name="Joint-knee-r-pitch" pos="0 0 0" axis="0 -1 0" range="-2.35619 0.08727" actuatorfrcrange="-396 396"/>
+            <body name="Link-ankel-r-pitch" pos="0 0 -0.387">
+              <inertial pos="0 0 0" mass="0.106605" diaginertia="1.57904e-05 1.57904e-05 1.31288e-05"/>
+              <joint name="Joint-ankel-r-pitch" pos="0 0 0" axis="0 -1 0" range="-0.43633 0.61087" actuatorfrcrange="-58.5 58.5"/>
+              <body name="Link-ankel-r-roll">
+                <inertial pos="0.0250704 1.34105e-06 -0.0402505" quat="4.9772e-05 0.735975 -1.8251e-05 0.677009" mass="0.961268" diaginertia="0.00487628 0.0044402 0.000704242"/>
+                <joint name="Joint-ankel-r-roll" pos="0 0 0" axis="1 0 0" range="-0.43633 0.43633" actuatorfrcrange="-58.5 58.5"/>
+                <geom size="0.005 0.125" pos="0.0485 -0.04 -0.063" quat="0.707105 0 0.707108 0" type="cylinder" rgba="0.752941 0.752941 0.752941 1"/>
+                <geom size="0.005 0.125" pos="0.0485 0.04 -0.063" quat="0.707105 0 0.707108 0" type="cylinder" rgba="0.752941 0.752941 0.752941 1"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+    <body name="Link-hip-l-roll" pos="-0.08575 0.1185 -0.167">
+      <inertial pos="0.0763902 3.03513e-05 0.0143062" quat="0.00119945 0.714396 -0.00126728 0.69974" mass="1.80239" diaginertia="0.00272605 0.00169536 0.00125115"/>
+      <joint name="Joint-hip-l-roll" pos="0 0 0" axis="1 0 0" range="-0.17453 0.43633" actuatorfrcrange="-320 320"/>
+      <body name="Link-hip-l-yaw" pos="0.084 0 -0.0085">
+        <inertial pos="-1.96942e-08 -0.00792742 -0.0418047" quat="0.946912 -0.321492 0 0" mass="0.454709" diaginertia="0.000973165 0.000904719 0.000402039"/>
+        <joint name="Joint-hip-l-yaw" pos="0 0 0" axis="0 0 1" range="-0.69813 0.69813" actuatorfrcrange="-160 160"/>
+        <body name="Link-hip-l-pitch" pos="0 -0.042 -0.0915">
+          <inertial pos="0.00105388 0.0604023 -0.109523" quat="0.706427 -0.000327805 -0.00807602 0.70774" mass="7.95222" diaginertia="0.0594963 0.0503975 0.0130413"/>
+          <joint name="Joint-hip-l-pitch" pos="0 0 0" axis="0 -1 0" range="-0.7854 1.8326" actuatorfrcrange="-396 396"/>
+          <body name="Link-knee-l-pitch" pos="0 0.03675 -0.4">
+            <inertial pos="0.000859577 -9.62775e-05 -0.15332" quat="0.706564 0.0041656 -0.000830509 0.707636" mass="3.11551" diaginertia="0.0198798 0.0186225 0.00191536"/>
+            <joint name="Joint-knee-l-pitch" pos="0 0 0" axis="0 -1 0" range="-2.35619 0.08727" actuatorfrcrange="-396 396"/>
+            <body name="Link-ankel-l-pitch" pos="0 0 -0.387">
+              <inertial pos="0 0 0" mass="0.106605" diaginertia="1.57904e-05 1.57904e-05 1.31288e-05"/>
+              <joint name="Joint-ankel-l-pitch" pos="0 0 0" axis="0 -1 0" range="-0.43644 0.61087" actuatorfrcrange="-58.5 58.5"/>
+              <body name="Link-ankel-l-roll">
+                <inertial pos="0.0250707 1.34004e-06 -0.0402494" quat="6.46646e-05 0.735975 -1.23541e-06 0.677008" mass="0.961268" diaginertia="0.00487628 0.0044402 0.000704241"/>
+                <joint name="Joint-ankel-l-roll" pos="0 0 0" axis="1 0 0" range="-0.43633 0.43633" actuatorfrcrange="-58.5 58.5"/>
+                <geom size="0.005 0.125" pos="0.0485 -0.04 -0.063" quat="0.707105 0 0.707108 0" type="cylinder" rgba="0.752941 0.752941 0.752941 1"/>
+                <geom size="0.005 0.125" pos="0.0485 0.04 -0.063" quat="0.707105 0 0.707108 0" type="cylinder" rgba="0.752941 0.752941 0.752941 1"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

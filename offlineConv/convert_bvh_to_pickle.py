@@ -12,7 +12,8 @@ from scipy.spatial.transform import Rotation as R
 import sys
 
 # 添加项目路径到 Python 搜索路径
-sys.path.insert(0, '/home/jeff/Codes/Robots/src')
+# 指向 src/motion_retargeting 目录，以便能导入内部的 motion_retargeting 包
+sys.path.insert(0, '/home/jeff/Codes/Robots/src/motion_retargeting')
 
 try:
     from motion_retargeting.retarget.retarget import BVHRetarget, Joint

@@ -1,24 +1,32 @@
+# RViz 配置文件 - 用于保存显示配置、视角和面板布局
 Panels:
+  # 显示面板 (Displays Panel): 左侧用于管理各种可视化插件的列表
   - Class: rviz_common/Displays
     Help Height: 70
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /Status1
+        - /Grid1
         - /TF1
         - /TF1/Tree1
         - /Skeleton1
+        - /Skeleton1/Status1
         - /Skeleton1/Topic1
         - /Skeleton1/Namespaces1
       Splitter Ratio: 0.5
-    Tree Height: 397
+    Tree Height: 795
+  # 视图面板 (Views Panel): 用于选择和配置相机视角
   - Class: rviz_common/Views
     Expanded:
       - /Current View1
     Name: Views
-    Splitter Ratio: 0.5
+# 可视化管理器: 核心组件，管理所有 3D 渲染内容
 Visualization Manager:
   Class: ""
+  Displays:
+    # 网格 (Grid): 地面参考网格
   Displays:
     - Alpha: 0.5
       Cell Size: 1
@@ -36,8 +44,9 @@ Visualization Manager:
         Z: 0
       Plane: XY
       Plane Cell Count: 20
-      Reference Frame: world
-      Value: true
+    # TF (Transform): 坐标系变换可视化
+    - Class: rviz_default_plugins/TF
+      Enabled: false # 当前被禁用 (因为 MarkerArray 已经显示了骨骼)
     - Class: rviz_default_plugins/TF
       Enabled: false
       Frame Timeout: 15
@@ -51,7 +60,7 @@ Visualization Manager:
       Tree:
         {}
       Update Interval: 0
-      Value: false
+    # MarkerArray: 标记数组，这里用于显示人体骨骼 (球体关节 + 线条骨骼)
     - Class: rviz_default_plugins/MarkerArray
       Enabled: true
       Name: Skeleton
@@ -63,40 +72,58 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
+        Value: /bvh_skeleton # 订阅的话题名Reliable
         Value: /bvh_skeleton
       Value: true
-  Enabled: true
+  # 全局选项
   Global Options:
-    Background Color: 48; 48; 48
-    Fixed Frame: world
-    Frame Rate: 30
-  Name: root
-  Tools: ~
+    Background Color: 48; 48; 48 # 背景颜色 (深灰色)
+    Fixed Frame: world # 固定参考坐标系，所有物体都相对于它显示
+    Frame Rate: 30 # 渲染帧率orld
+  # 工具栏工具配置
+  Tools:
+    - Class: rviz_default_plugins/Interact # 交互工具
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/SetInitialPose
+      Covariance x: 0.25
+      Covariance y: 0.25
+      Covariance yaw: 0.06853891909122467
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: initialpose
   Transformation:
     Current:
-      Class: rviz_default_plugins/TF
-  Value: true
+  # 相机视角配置
   Views:
     Current:
-      Class: rviz_default_plugins/FrameAligned
+      Class: rviz_default_plugins/ThirdPersonFollower # 第三人称跟随视角 (或 Orbit 轨道视角)
+      Distance: 4.824375152587891 # 相机距离
+      Class: rviz_default_plugins/ThirdPersonFollower
+      Distance: 4.824375152587891
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
-      Invert Z Axis: false
-      Lock Camera: false
-      Name: Current View
-      Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5697963237762451
-      Point towards: -z axis
-      Position:
+      Focal Point:
         X: 0
         Y: 0
         Z: 0
+      Focal Shape Fixed Size: false
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.4953981041908264
       Target Frame: world
-      Value: FrameAligned (rviz_default_plugins)
-      Yaw: 0
+      Value: ThirdPersonFollower (rviz_default_plugins)
+# 窗口几何形状: 保存窗口的大小和位置
+      Yaw: 3.5135719776153564
     Saved: ~
 Window Geometry:
   Displays:
@@ -104,9 +131,9 @@ Window Geometry:
   Height: 1016
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000001cb0000039efc0200000002fb000000100044006900730070006c006100790073010000003d00000210000000c900fffffffb0000000a00560069006500770073010000025300000188000000a400ffffff000005690000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000001cb0000039efc0200000002fb000000100044006900730070006c006100790073010000003d0000039e000000c900fffffffb0000000a00560069006500770073000000025300000188000000a400ffffff000003ce0000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
-  Width: 1850
-  X: 70
-  Y: 27
+  Width: 1439
+  X: 554
+  Y: 131

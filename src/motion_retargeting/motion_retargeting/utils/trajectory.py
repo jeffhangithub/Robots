@@ -1,3 +1,66 @@
+"""
+轨迹数据处理与存储模块 (Trajectory Data Processing and Storage Module)
+
+文件作用 (Purpose):
+    本模块提供了机器人运动轨迹的数据结构和处理功能，主要用于存储、处理和导出机器人的
+    时间序列运动数据，包括关节角度、刚体变换、接触状态等信息。支持从BVH文件或实时传感器
+    数据中构建轨迹，并进行插值、滤波和导出。
+
+数据流 (Data Flow):
+    输入数据流: BVH文件/Xsens实时数据 → PoseData → Trajectory.add_sample() 
+    处理流程: 原始姿态数据 → 样条插值/Savitzky-Golay滤波 → 速度计算 
+    输出数据流: Trajectory.to_dict()/save() → pickle文件/HDF5文件
+
+输入输出 (Input/Output):
+    输入:
+        - PoseData对象: 包含单帧的刚体变换、关节角度、接触状态等
+        - sample_dt: 采样时间间隔(秒)
+        - BodyTransform: 单个刚体的位置和四元数姿态
+    
+    输出:
+        - Trajectory对象: 完整的运动轨迹时间序列
+        - pickle文件(.pkl): 包含关节轨迹、刚体变换、接触信息的字典
+        - 字典格式数据: 可用于HDF5存储或进一步处理
+
+使用方法 (Usage):
+    本文件不能直接命令行执行，需作为模块导入使用:
+    
+    ```python
+    from motion_retargeting.utils.trajectory import Trajectory, PoseData, BodyTransform
+    
+    # 创建轨迹对象
+    traj = Trajectory(sample_dt=0.01)
+    
+    # 添加姿态数据样本
+    pose = PoseData(transforms=[...], q=joint_angles, ...)
+    traj.add_sample(pose)
+    
+    # 导出为pickle文件(默认20Hz)
+    traj.save("output_path", out_dt=0.02)
+    ```
+
+项目引用 (Referenced By):
+    本模块被以下文件引用:
+    - bvh_parser.py: BVH文件解析器，使用Trajectory类存储解析结果
+    - data_subscriber.py: ROS2订阅器，实时接收Xsens数据并构建Trajectory
+    - wbik_solver.py / wbik_solver2.py: 全身逆运动学求解器，使用PoseData和BodyTransform
+    - trajectory_hdf5.py: HDF5格式存储工具，使用Trajectory数据结构
+
+使用环境要求 (Environment Requirements):
+    Python版本: >= 3.8
+    依赖包:
+        - numpy: 数组操作和数值计算
+        - numpy-quaternion: 四元数运算库
+        - scipy: 信号滤波(savgol_filter)和样条插值(make_interp_spline, RotationSpline)
+        - pickle: 数据序列化(Python标准库)
+    
+    ROS2环境: 本模块作为motion_retargeting包的一部分，需在ROS2 Humble环境中使用
+
+注释信息 (Documentation Info):
+    注释时间: 2026年1月3日
+    注释人: Jeff
+"""
+
 import numpy as np
 import quaternion
 from dataclasses import dataclass

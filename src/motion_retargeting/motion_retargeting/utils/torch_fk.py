@@ -1,3 +1,120 @@
+"""
+PyTorch批量正运动学计算模块 (PyTorch Batched Forward Kinematics Module)
+
+文件作用 (Purpose):
+    本模块基于PyTorch实现了针对MuJoCo机器人模型的批量正运动学(Forward Kinematics, FK)计算。
+    核心功能包括:
+    - 从MJCF文件加载机器人模型结构（刚体树、关节配置）
+    - 高效批量计算给定关节配置下所有刚体的世界坐标位姿
+    - 支持GPU加速的张量运算，适合大批量FK计算（如采样、优化）
+    - 提供随机配置生成器（用于采样、初始化等场景）
+    
+    与Pinocchio/MuJoCo原生FK的区别:
+    - 支持批量处理 (batch_size × nq → batch_size × nbodies × 7)
+    - 基于PyTorch，支持GPU加速和自动微分
+    - 完全可微分，可用于基于梯度的优化
+
+数据流 (Data Flow):
+    输入: 关节配置张量 q (batch_size, nq)
+          ├─ [0:3]: 浮动基座位置 (x, y, z)
+          ├─ [3:7]: 浮动基座姿态四元数 (w, x, y, z) scalar-first
+          └─ [7:nq]: 各关节角度
+    
+    处理流程:
+        1. 从MJCF文件解析刚体树结构（父子关系、局部变换）
+        2. 从根节点开始递归计算刚体全局变换
+        3. 对于带关节的刚体，应用关节旋转（轴角→四元数→位姿变换）
+        4. 累积计算所有刚体的世界坐标位置和姿态
+    
+    输出: (body_names, body_positions, body_quaternions)
+          ├─ body_names: 刚体名称列表 [str, ...]
+          ├─ body_positions: 位置张量 (batch_size, nbodies, 3)
+          └─ body_quaternions: 姿态四元数 (batch_size, nbodies, 4) scalar-first
+
+输入输出 (Input/Output):
+    类初始化:
+        - 输入: 
+            - mjcf_file: 机器人MJCF模型文件路径 (.xml)
+            - device: PyTorch设备 (torch.device, 如 'cuda:0' 或 'cpu')
+        - 输出: TorchForwardKinematics实例
+    
+    主要方法:
+        - forward_kinematics(q, pin_notation=False):
+            输入: 
+                - q: 关节配置张量 (batch_size, nq) 或 (nq,)
+                - pin_notation: 是否使用Pinocchio四元数顺序 (xyzw → wxyz)
+            输出: (body_names, body_positions, body_quaternions)
+                - body_names: list[str], 长度为nbodies
+                - body_positions: torch.Tensor (batch_size, nbodies, 3)
+                - body_quaternions: torch.Tensor (batch_size, nbodies, 4)
+        
+        - random_configuration(batch_size):
+            输入: batch_size: 采样数量
+            输出: torch.Tensor (batch_size, nq) - 满足关节限制的随机配置
+        
+        - nq: 属性，返回关节自由度总数 (包含浮动基座7维)
+        - nbodies: 属性，返回刚体数量
+
+使用方法 (Usage):
+    本文件为工具库，不可直接执行。需作为模块导入使用:
+    
+    ```python
+    import torch
+    from motion_retargeting.utils.torch_fk import TorchForwardKinematics
+    
+    # 初始化FK求解器
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    fk = TorchForwardKinematics(
+        mjcf_file="robot.xml",
+        device=device
+    )
+    
+    # 批量生成随机配置
+    q_batch = fk.random_configuration(batch_size=1000)
+    
+    # 批量计算正运动学
+    body_names, positions, quaternions = fk.forward_kinematics(q_batch)
+    
+    # 提取特定刚体（如左手）的位置
+    left_hand_idx = body_names.index('left_hand')
+    left_hand_pos = positions[:, left_hand_idx, :]  # (1000, 3)
+    ```
+
+项目引用 (Referenced By):
+    当前未被项目中其他Python文件直接引用，但提供了可用于以下场景的基础设施:
+    - 基于采样的IK求解（随机采样+FK验证）
+    - 轨迹优化（需要可微FK进行梯度计算）
+    - 批量配置验证（碰撞检测、可达性分析）
+    - 机器学习训练（需要GPU加速的FK计算）
+    
+    潜在使用场景:
+    - 替代Pinocchio的FK进行GPU加速批量计算
+    - 基于梯度的IK优化（与wbik_solver的QP方法互补）
+    - 强化学习中的策略网络正向传播
+
+使用环境要求 (Environment Requirements):
+    Python版本: >= 3.8
+    
+    依赖包:
+        - torch >= 1.10: PyTorch深度学习框架（支持CPU/GPU）
+        - numpy: 数组操作
+        - mujoco >= 2.3: MuJoCo物理引擎Python绑定（用于加载MJCF）
+        - motion_retargeting.utils.quat_utils: 四元数运算工具
+            - quat_multiply: 四元数乘法
+            - rotate: 四元数旋转向量
+            - axis_angle_to_quat: 轴角转四元数
+    
+    硬件推荐:
+        - CPU模式: 多核处理器，批量计算建议batch_size < 100
+        - GPU模式: CUDA兼容显卡，可处理batch_size > 1000的大批量计算
+    
+    ROS2环境: 本模块可独立运行，不强制依赖ROS2环境
+
+注释信息 (Documentation Info):
+    注释时间: 2026年1月3日
+    注释人: Jeff
+"""
+
 import torch
 import numpy as np
 import mujoco

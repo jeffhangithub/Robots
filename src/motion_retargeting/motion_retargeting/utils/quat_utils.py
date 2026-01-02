@@ -1,3 +1,138 @@
+"""
+四元数工具函数库 (Quaternion Utility Functions Library)
+
+文件作用 (Purpose):
+    本模块提供了全面的四元数运算和旋转表示转换工具，支持PyTorch张量和NumPy数组两种数据格式。
+    主要功能包括:
+    - 四元数基本运算（归一化、乘法、求逆）
+    - 旋转表示转换（四元数↔旋转矩阵↔轴角）
+    - 向量旋转操作（使用四元数旋转3D向量）
+    - 角速度计算（从连续四元数序列推导）
+    - 偏航角提取（从旋转矩阵中提取绕Z轴旋转）
+    
+    本模块是机器人运动学计算的基础工具，广泛应用于IK求解、轨迹处理、可视化等场景。
+
+数据流 (Data Flow):
+    输入: 
+        - 四元数 (PyTorch Tensor / NumPy array)
+        - 旋转矩阵 (3×3 或 batch×3×3)
+        - 轴角表示 (axis + angle 或 axis_angle向量)
+        - 3D向量 (待旋转的向量)
+    
+    处理: 
+        - 格式转换和标准化
+        - 数学运算（乘法、求逆、插值）
+        - 坐标变换和旋转应用
+    
+    输出: 转换后的旋转表示（四元数、旋转矩阵、偏航矩阵等）
+
+输入输出 (Input/Output):
+    核心函数:
+    
+    1. normalize(quaternions: torch.Tensor) -> torch.Tensor
+       输入: 四元数张量 (batch, 4) [w, x, y, z]
+       输出: 归一化后的四元数，确保w≥0（标准化方向）
+    
+    2. axis_angle_to_quat(axis: torch.Tensor, angle: torch.Tensor) -> torch.Tensor
+       输入: 旋转轴 (batch, 3), 旋转角度 (batch, 1) 弧度
+       输出: 四元数 (batch, 4) [w, x, y, z]
+    
+    3. quat_multiply(u: torch.Tensor, v: torch.Tensor) -> torch.Tensor
+       输入: 两个四元数 u, v (batch, 4)
+       输出: 四元数乘积 u*v (batch, 4)
+    
+    4. rotate(quat: torch.Tensor, vec: torch.Tensor) -> torch.Tensor
+       输入: 四元数 (batch, 4), 向量 (batch, 3)
+       输出: 旋转后的向量 (batch, 3)
+    
+    5. quat_inv(q: torch.Tensor) -> torch.Tensor
+       输入: 四元数 (batch, 4)
+       输出: 四元数的逆 (batch, 4)
+    
+    6. angular_velocity(q1, q2, dt: float)
+       输入: 初始四元数 q1, 终止四元数 q2, 时间间隔 dt
+       输出: 角速度向量 (batch, 3) rad/s
+    
+    7. yaw_matrix(rotation_matrix: np.ndarray) -> np.ndarray
+       输入: 旋转矩阵 (3, 3) 或 (batch, 3, 3)
+       输出: 仅保留偏航(yaw)的旋转矩阵（忽略pitch和roll）
+    
+    8. quat2mat(q: np.ndarray, scalar_last=False) -> np.ndarray
+       输入: 四元数 (batch, 4), scalar_last指定四元数格式
+       输出: 旋转矩阵 (batch, 3, 3)
+    
+    9. axis_angle_to_quaternion(axis_angle: torch.Tensor) -> torch.Tensor
+       输入: 轴角向量 (batch, 3) - 方向为轴，模长为角度
+       输出: 四元数 (batch, 4) [w, x, y, z]
+
+使用方法 (Usage):
+    本文件为工具库，不可直接执行。需要在其他Python模块中导入使用:
+    
+    ```python
+    import torch
+    from motion_retargeting.utils.quat_utils import normalize, quat_multiply, rotate
+    
+    # 示例1: 旋转向量
+    quat = torch.tensor([[1.0, 0.0, 0.0, 0.0]])  # 单位四元数(无旋转)
+    vec = torch.tensor([[1.0, 0.0, 0.0]])         # X轴方向
+    rotated_vec = rotate(quat, vec)
+    
+    # 示例2: 四元数乘法（组合旋转）
+    q1 = torch.tensor([[0.707, 0.707, 0.0, 0.0]])  # 绕X轴转90°
+    q2 = torch.tensor([[0.707, 0.0, 0.707, 0.0]])  # 绕Y轴转90°
+    q_combined = quat_multiply(q1, q2)              # 组合旋转
+    
+    # 示例3: 提取偏航角（仅保留绕Z轴的旋转）
+    import numpy as np
+    rotation_mat = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])  # 绕Z轴转90°
+    yaw_mat = yaw_matrix(rotation_mat)  # 提取偏航分量
+    ```
+
+项目引用 (Referenced By):
+    本模块被广泛引用，是运动重定向系统的基础工具:
+    
+    1. wbik_solver.py / wbik_solver2.py
+       - 使用 yaw_matrix() 提取脚部偏航角，用于接触约束
+    
+    2. torch_fk.py
+       - 使用 quat_multiply(), rotate(), axis_angle_to_quat()
+       - 在批量正运动学计算中进行四元数旋转操作
+    
+    3. retarget.py / retarget_online.py
+       - 使用 yaw_matrix() 处理人体骨架的偏航对齐
+       - 在BVH数据解析和重定向映射中使用
+    
+    4. mujoco/renderer.py
+       - 使用 quat2mat() 将四元数转换为旋转矩阵
+       - 用于可视化渲染中的坐标系绘制
+    
+    几乎所有涉及旋转计算的模块都依赖本工具库。
+
+使用环境要求 (Environment Requirements):
+    Python版本: >= 3.8
+    
+    依赖包:
+        - torch >= 1.10: PyTorch深度学习框架（支持CPU/GPU）
+            - 用于GPU加速的四元数批量运算
+            - 支持自动微分（可用于基于梯度的优化）
+        - numpy: 数组操作和数值计算
+            - 用于NumPy格式的四元数转换
+        - numpy-quaternion: 扩展的四元数运算库
+            - 提供高级四元数操作（如from_rotation_matrix, as_rotation_matrix）
+        - torch.nn.functional: PyTorch函数库
+            - 使用F.normalize进行张量归一化
+    
+    硬件支持:
+        - CPU模式: 标准多核处理器即可
+        - GPU模式: CUDA兼容显卡，可大幅加速批量四元数运算
+    
+    ROS2环境: 不强制依赖，但通常作为motion_retargeting包的一部分在ROS2环境中使用
+
+注释信息 (Documentation Info):
+    注释时间: 2026年1月3日
+    注释人: Jeff
+"""
+
 import torch
 import numpy as np
 import quaternion

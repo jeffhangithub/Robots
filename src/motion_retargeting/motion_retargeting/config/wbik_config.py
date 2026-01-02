@@ -1,3 +1,9 @@
+"""
+文件作用：配置 WBIK（全身逆运动学）相关参数，包括 MJCF 路径、接触阈值、权重及映射表等，用于 motion_retargeting 的求解与控制。
+作者：Jeff
+日期：2026-01-02
+"""
+
 import numpy as np
 
 
@@ -19,9 +25,9 @@ class WBIKConfig:
     extra_bodies (list[string]): names of the body in the xml for which to export transform data aside from the task bodies
     """
 
-    mjcf_path: str
-    termination_velocity: float = 5e-1
-    max_iters: int = 1
+    mjcf_path: str # Path to the MJCF model of the robot
+    termination_velocity: float = 5e-1 # Terminates integration when joints reach specified velocity
+    max_iters: int = 1 # Max integration steps
     skip_iters: int = 2000
     contact_velocity: float = 0.6
     height_offset: float = 0.06
@@ -33,7 +39,7 @@ class WBIKConfig:
     safety_margin : float = 0.02  # 安全距离(m)
     foot_clearance : float = 0.15  # 脚部离地高度阈值(m)
     balance_adjustment : float = 0.05  # 平衡调整幅度(m)
-    task_weights = {
+    task_weights = { # 任务权重配置
         "joint_velocity": 2.0,
         "max_joint_acceleration": np.inf,
         "max_root_lin_acceleration": np.inf,

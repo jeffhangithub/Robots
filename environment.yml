@@ -9,6 +9,7 @@ dependencies:
 
   # 强制 NumPy 1.x，避免 NumPy2 ABI 雷
   - numpy=1.26.4
+  - mkl
   - osqp=0.6.7.post3
   - qdldl-python
   - scipy
